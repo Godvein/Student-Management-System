@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StudentMS.Data;
 using StudentMS.DTOs.UserDTOs;
 using StudentMS.Models;
@@ -22,9 +24,25 @@ namespace StudentMS.Controllers
 
         // login endpoint to authenticate user logic
         [HttpPost("login")]
-        public ActionResult Login()
+        async public Task<ActionResult> Login([FromBody] LoginRequestDTO dto)
         {
-            return Ok("ok");
+            if(dto == null)
+            {
+                return BadRequest("Invalid request data.");
+            }
+
+
+            // verify user credentials
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == dto.Username);
+            bool isPasswordValid = BCrypt.Net.BCrypt.Verify(dto.Password, user.Password);
+            if (user == null || !isPasswordValid)
+            {
+                return Unauthorized("Invalid username or password.");
+            }
+
+            var token = _jwtService.GenerateToken(user);
+
+            return Ok(new {token});
         }
 
         // register endpoint to create a new user logic
@@ -56,7 +74,7 @@ namespace StudentMS.Controllers
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
 
-            var token = _jwtService.GenerateToken(dto);
+            var token = _jwtService.GenerateToken(user);
 
             return Ok(new {token});
         }

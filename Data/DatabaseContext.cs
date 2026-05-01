@@ -22,6 +22,14 @@ namespace StudentMS.Data
                 .HasMany(u => u.Roles)
                 .WithMany(r => r.Users)
                 .UsingEntity(j => j.ToTable("UserRoles"));
+
+            // predefine some roles
+            modelBuilder.Entity<Role>()
+                .HasData(
+                    new Role { RoleId = 1, RoleName = "Admin" },
+                    new Role { RoleId = 2, RoleName = "User" }
+                );
+
         }
     }
 }
