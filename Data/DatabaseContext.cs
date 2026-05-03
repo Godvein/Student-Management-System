@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using StudentMS.Models;
 
 namespace StudentMS.Data
@@ -21,7 +22,16 @@ namespace StudentMS.Data
             modelBuilder.Entity<User>()
                 .HasMany(u => u.Roles)
                 .WithMany(r => r.Users)
-                .UsingEntity(j => j.ToTable("UserRoles"));
+                .UsingEntity<Dictionary<string, object>>(
+                "UserRoles",
+                j => j.HasOne<Role>().WithMany().HasForeignKey("RoleId"),
+                j => j.HasOne<User>().WithMany().HasForeignKey("UserId"),
+                j =>
+                {
+                    j.HasKey("UserId", "RoleId");
+                    j.ToTable("UserRoles");
+                }
+                );
 
             // predefine some roles
             modelBuilder.Entity<Role>()
@@ -29,6 +39,17 @@ namespace StudentMS.Data
                     new Role { RoleId = 1, RoleName = "Admin" },
                     new Role { RoleId = 2, RoleName = "User" }
                 );
+
+            // seed some users with roles
+            modelBuilder.Entity<User>()
+                .HasData(
+                    new User { UserId = 1, Username = "admin", Password = "$2a$11$xbic0fNNc1WZnUFzE0S8k.9E81QD6tqGwGPss3IVSphhU83hy1YvG"}
+                );
+
+            // seed the user-role relationship
+            modelBuilder.Entity("UserRoles").HasData(
+                new { UserId = 1, RoleId = 1 }
+            );
 
         }
     }

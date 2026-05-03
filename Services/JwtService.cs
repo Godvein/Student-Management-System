@@ -21,10 +21,16 @@ namespace StudentMS.Services
         {
             var claims = new List<Claim>
             {
-            new Claim(ClaimTypes.Name, user.Username)
+            new Claim(ClaimTypes.Name, user.Username),
             
             };
-
+            if (user.Roles != null)
+            {
+                foreach (var role in user.Roles)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, role.RoleName));
+                }
+            }
             var key = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
 
@@ -39,6 +45,7 @@ namespace StudentMS.Services
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+
         }
     }
 }

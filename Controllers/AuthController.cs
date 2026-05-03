@@ -33,7 +33,8 @@ namespace StudentMS.Controllers
 
 
             // verify user credentials
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == dto.Username);
+            var user = await _context.Users.Include(u => u.Roles).FirstOrDefaultAsync(u => u.Username == dto.Username);
+
             bool isPasswordValid = BCrypt.Net.BCrypt.Verify(dto.Password, user.Password);
             if (user == null || !isPasswordValid)
             {
@@ -41,7 +42,7 @@ namespace StudentMS.Controllers
             }
 
             var token = _jwtService.GenerateToken(user);
-
+            
             return Ok(new {token});
         }
 
@@ -67,6 +68,7 @@ namespace StudentMS.Controllers
             {
                 Username = dto.Username,
                 Password = HashedPassword,
+                Roles = new List<Role> { _context.Roles.FirstOrDefault(r => r.RoleName == "User")! },
                 CreatedAt = DateTime.UtcNow,
                 LastUpdatedAt = DateTime.UtcNow
             };

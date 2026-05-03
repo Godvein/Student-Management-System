@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using StudentMS.Data;
 using StudentMS.Models;
@@ -15,6 +16,7 @@ namespace StudentMS.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         async public Task<ActionResult> AddStudent(Student student)
         {
             _context.Students.Add(student);
@@ -23,6 +25,7 @@ namespace StudentMS.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         async public Task<ActionResult> GetStudents()
         {
             List<Student> students = _context.Students.ToList();
@@ -30,6 +33,7 @@ namespace StudentMS.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         async public Task<ActionResult> GetStudent(int id)
         {
             Student? student = await _context.Students.FindAsync(id);
@@ -41,6 +45,7 @@ namespace StudentMS.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         async public Task<ActionResult> UpdateStudent(int id, Student updatedStudent)
         {
             Student? student = await _context.Students.FindAsync(id);
@@ -56,6 +61,7 @@ namespace StudentMS.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         async public Task<ActionResult> DeleteStudent(int id)
         {
             Student? student = await _context.Students.FindAsync(id);

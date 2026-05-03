@@ -7,7 +7,7 @@
         public string Password { get; set; } = string.Empty;
         public List<Role> Roles { get; set; } = new List<Role>();
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime LastUpdatedAt { get; set;} = DateTime.UtcNow;
+        public DateTime? CreatedAt { get; set; }
+        public DateTime? LastUpdatedAt { get; set;}
     }
 }
